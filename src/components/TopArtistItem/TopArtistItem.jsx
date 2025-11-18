@@ -20,7 +20,8 @@ export default function TopArtistItem({ artist, index }) {
       <div className="artist-details">
         <div className="artist-details-header">
           <div className="artist-title">
-            {index}. {artist.name}
+            {/* Display index starting at 1 for users */}
+            {index + 1}. {artist.name}
           </div>
           <div className="artist-genres">
             Genres: {artist.genres.join(', ')}
