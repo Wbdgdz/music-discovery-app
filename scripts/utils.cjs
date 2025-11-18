@@ -3,11 +3,13 @@ dotenv.config({ path: ".env.local" });
 
 // Configure proxy for Node fetch (Undici) and ensure global fetch uses this dispatcher
 try {
+  // Prefer env, fallback to organization proxy if not provided
   var proxyFromEnv =
     process.env.HTTPS_PROXY ||
     process.env.https_proxy ||
     process.env.HTTP_PROXY ||
-    process.env.http_proxy;
+    process.env.http_proxy ||
+    "http://proxy.iutn.univ-poitiers.fr:3128";
   // Always bind global fetch to undici's fetch so setGlobalDispatcher applies to it
   const undici = require("undici");
   if (undici && undici.fetch) {
