@@ -62,4 +62,37 @@ describe("artistCountForPlaylist", () => {
 
     consoleSpy.mockRestore();
   });
+
+  test("returns empty object when data is null", async () => {
+    fetchPlaylistById.mockResolvedValue({ data: null, error: null });
+    const result = await artistCountForPlaylist("t", "p");
+    expect(result).toEqual({});
+  });
+
+  test("returns empty object when tracks is missing", async () => {
+    fetchPlaylistById.mockResolvedValue({ data: {}, error: null });
+    const result = await artistCountForPlaylist("t", "p");
+    expect(result).toEqual({});
+  });
+
+  test("returns empty object when tracks.items is not an array", async () => {
+    fetchPlaylistById.mockResolvedValue({ data: { tracks: { items: {} } }, error: null });
+    const result = await artistCountForPlaylist("t", "p");
+    expect(result).toEqual({});
+  });
+
+  test("skips entries without artist names or missing artists arrays", async () => {
+    const data = {
+      tracks: {
+        items: [
+          { track: { artists: [{ name: "Artist A" }, { name: "" }, {}] } },
+          { track: {} },
+          {},
+        ],
+      },
+    };
+    fetchPlaylistById.mockResolvedValue({ data, error: null });
+    const result = await artistCountForPlaylist("t", "p");
+    expect(result).toEqual({ "Artist A": 1 });
+  });
 });
