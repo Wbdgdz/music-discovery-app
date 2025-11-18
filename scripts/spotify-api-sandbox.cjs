@@ -1,5 +1,16 @@
 const { generateAccessToken } = require("./utils.cjs");
-const { fetchPlaylistById } = require("../src/api/spotify-playlists");
+// Ensure correct extension for ESM file when required from CJS
+const { fetchPlaylistById } = require("../src/api/spotify-playlists.js");
+
+// Optionally increase connect timeout for slow networks when no proxy is set
+try {
+  const undici = require("undici");
+  const hasProxy = process.env.HTTPS_PROXY || process.env.https_proxy || process.env.HTTP_PROXY || process.env.http_proxy;
+  if (!hasProxy) {
+    const agent = new undici.Agent({ connect: { timeout: 30000 } });
+    undici.setGlobalDispatcher(agent);
+  }
+} catch {}
 
 /**
  * Main function to demonstrate fetching a Spotify playlist.
