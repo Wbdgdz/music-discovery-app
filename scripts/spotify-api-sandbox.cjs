@@ -21,22 +21,6 @@ const main = async () => {
 
   const token = await generateAccessToken();
 
-  // fetch playlist by ID
-  fetchPlaylistById(token, playlistId)
-    .then(({ data }) => {
-      // extract track names and artist names
-      const tracks = data.tracks.items.map((item) => ({
-        trackName: item.track.name,
-        artistNames: item.track.artists.map((artist) => artist.name).join(", "),
-      }));
-
-      console.log(`Playlist: ${data.name} by ${data.owner.display_name}`);
-      console.table(tracks);
-    })
-    .catch((error) => {
-      console.error("Error fetching playlist:", error);
-    });
-
   // compute artist counts and display Top 5
   try {
     const counts = await artistCountForPlaylist(token, playlistId);
