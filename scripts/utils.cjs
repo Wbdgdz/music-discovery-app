@@ -1,11 +1,32 @@
 var dotenv = require("dotenv");
 dotenv.config({ path: ".env.local" });
 
+// Configure proxy for Node fetch (Undici) and ensure global fetch uses this dispatcher
+try {
+  // Prefer env, fallback to organization proxy if not provided
+  var proxyFromEnv =
+    process.env.HTTPS_PROXY ||
+    process.env.https_proxy ||
+    process.env.HTTP_PROXY ||
+    process.env.http_proxy ||
+    "http://proxy.iutn.univ-poitiers.fr:3128";
+  // Always bind global fetch to undici's fetch so setGlobalDispatcher applies to it
+  const undici = require("undici");
+  if (undici && undici.fetch) {
+    globalThis.fetch = undici.fetch;
+  }
+  if (proxyFromEnv && undici && undici.ProxyAgent && undici.setGlobalDispatcher) {
+    undici.setGlobalDispatcher(new undici.ProxyAgent(proxyFromEnv));
+  }
+} catch (e) {
+  // If undici cannot be required, continue without proxy
+}
+
 /**
  * Encodes client ID and secret for Basic Auth.
- * @param {*} clientId 
- * @param {*} clientSecret 
- * @returns 
+ * @param {*} clientId
+ * @param {*} clientSecret
+ * @returns
  */
 function encodeBasicAuth(clientId, clientSecret) {
   return Buffer.from(clientId + ":" + clientSecret, "utf8").toString("base64");
@@ -13,7 +34,7 @@ function encodeBasicAuth(clientId, clientSecret) {
 
 /**
  * Generates an access token using client credentials.
- * @returns 
+ * @returns
  */
 function generateAccessToken() {
   var clientId = process.env.SPOTIFY_CLIENT_ID;
