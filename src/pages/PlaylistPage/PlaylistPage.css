@@ -14,9 +14,6 @@
 	padding: 2.2rem 2.5rem 2.2rem 2.2rem;
 	transition: box-shadow 0.18s;
 }
-.playlist-header:hover {
-	box-shadow: 0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(30,185,84,0.07);
-}
 
 .playlist-cover {
 	width: 180px;
@@ -64,10 +61,12 @@
 	color: #fff;
 }
 
-.playlists-title { font-size: clamp(1.75rem,5vw,2.5rem); font-weight:700; margin-bottom: .35rem; }
+.playlist-title { 
+	font-size: clamp(1.75rem,5vw,2.5rem); font-weight:700; margin-bottom: .35rem; 
+	color: #000;}
 
 /* Multi-line truncation for description */
-.playlists-subtitle {
+.playlist-subtitle {
 	font-size: 1rem;
 	font-weight: 400;
 	margin: 0 0 1.25rem;
@@ -88,4 +87,3 @@
 .playlist-list { list-style: none; padding: 0; margin: 0; }
 .playlist-list > div { margin-bottom: .75rem; }
 .playlist-list > div:last-child { margin-bottom: 0; }
-
