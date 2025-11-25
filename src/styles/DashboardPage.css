@@ -1,0 +1,26 @@
+.top-artist {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+  max-width: 320px;
+}
+.top-artist-image {
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.top-artist-name {
+  margin: 0;
+  font-size: 1.4rem;
+}
+.top-artist-genres {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+}
