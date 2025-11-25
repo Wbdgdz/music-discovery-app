@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchUserTopArtists } from '../../api/spotify-me.js';
+import { fetchUserTopArtists, fetchUserTopTracks } from '../../api/spotify-me.js';
 import { useRequireToken } from '../../hooks/useRequireToken.js';
 import './DashboardPage.css';
 
@@ -20,6 +20,24 @@ function DashboardPage() {
       }
       const artist = data?.items?.[0];
       setTopArtist(artist || null);
+    })();
+    return () => { active = false; };
+  }, [token, checking]);
+
+  useEffect(() => {
+    if (checking || !token) return;
+    let active = true;
+    (async () => {
+      const { data, error } = await fetchUserTopTracks(token, 5, 'short_term');
+      if (!active) return;
+      if (error) {
+        console.error('Top tracks error:', error);
+        return;
+      }
+      console.log('Top tracks raw data:', data);
+      if (data?.items?.length) {
+        console.log('First top track:', data.items[0]);
+      }
     })();
     return () => { active = false; };
   }, [token, checking]);
