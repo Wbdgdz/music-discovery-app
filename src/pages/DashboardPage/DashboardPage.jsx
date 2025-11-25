@@ -30,23 +30,25 @@ function DashboardPage() {
   useEffect(() => {
     if (checking || !token) return;
     let active = true;
-    (async () => {
-      const { data, error } = await fetchUserTopTracks(token, 1, 'short_term');
-      if (!active) return;
-      if (error) {
-        setTrackError(error);
-        return;
-      }
-      const track = data?.items?.[0];
-      setTopTrack(track || null);
-    })();
-    return () => { active = false; };
+    const timer = setTimeout(() => {
+      (async () => {
+        const { data, error } = await fetchUserTopTracks(token, 1, 'short_term');
+        if (!active) return;
+        if (error) {
+          setTrackError(error);
+          return;
+        }
+        const track = data?.items?.[0];
+        setTopTrack(track || null);
+      })();
+    }, 0);
+    return () => { active = false; clearTimeout(timer); };
   }, [token, checking]);
 
   return (
     <section>
       <h1>Dashboard</h1>
-      {artistError && <p role="alert">Erreur artistes: {artistError}</p>}
+      {artistError && <p role="alert">{artistError}</p>}
       {!artistError && !topArtist && <p>Chargement de l'artiste le plus écouté...</p>}
       {topArtist && (
         <SimpleCard
@@ -57,7 +59,7 @@ function DashboardPage() {
         />
       )}
 
-      {trackError && <p role="alert">Erreur pistes: {trackError}</p>}
+      {trackError && <p role="alert">{trackError}</p>}
       {!trackError && !topTrack && <p>Chargement de la piste la plus écoutée...</p>}
       {topTrack && (
         <SimpleCard

@@ -51,13 +51,14 @@ describe('DashboardPage', () => {
     const artistTitle = await screen.findByRole('heading', { level: 3, name: /artist 1/i });
     expect(artistTitle).toBeInTheDocument();
     expect(screen.getByAltText('Artist 1')).toHaveAttribute('src', topArtistsResponse.items[0].images[1].url);
-    expect(screen.getByTestId('subtitle')).toHaveTextContent(/genres: rock/i);
+    const subtitles = await screen.findAllByTestId('subtitle');
+    expect(subtitles[0]).toHaveTextContent(/genres: rock/i);
 
     // track card
     const trackTitle = await screen.findByRole('heading', { level: 3, name: /track 1/i });
     expect(trackTitle).toBeInTheDocument();
     expect(screen.getByAltText('Track 1')).toHaveAttribute('src', topTracksResponse.items[0].album.images[1].url);
-    expect(screen.getAllByTestId('subtitle')[1]).toHaveTextContent(/artistes: artist 1/i);
+    expect(subtitles[1]).toHaveTextContent(/artistes: artist 1/i);
   });
 
   test('displays artist fetch error', async () => {
