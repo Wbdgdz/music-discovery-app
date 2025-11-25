@@ -30,60 +30,104 @@ describe('DashboardPage', () => {
     jest.restoreAllMocks();
   });
 
-  test('renders top artist and top track', async () => {
-    render(
+  // helper render
+  function renderDashboard() {
+    return render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <Routes>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/login" element={<div>Login Page</div>} />
         </Routes>
       </MemoryRouter>
     );
+  }
 
-    // title
-    expect(await screen.findByRole('heading', { level: 1, name: /dashboard/i })).toBeInTheDocument();
-
+  // helper wait for both fetches (no explicit loading UI yet so just wait on cards)
+  async function waitForData() {
     await waitFor(() => {
       expect(spotifyMe.fetchUserTopArtists).toHaveBeenCalledTimes(1);
       expect(spotifyMe.fetchUserTopTracks).toHaveBeenCalledTimes(1);
     });
+  }
 
-    // artist card
-    const artistTitle = await screen.findByRole('heading', { level: 3, name: /artist 1/i });
-    expect(artistTitle).toBeInTheDocument();
+  test('renders dashboard with top artist and track (structure + data)', async () => {
+    renderDashboard();
+
+    const heading = await screen.findByRole('heading', { level: 1, name: /dashboard/i });
+    expect(heading).toBeInTheDocument();
+
+    await waitForData();
+
+    // artist card assertions
+    const artistCardTitle = await screen.findByRole('heading', { level: 3, name: /artist 1/i });
+    expect(artistCardTitle).toBeInTheDocument();
     expect(screen.getByAltText('Artist 1')).toHaveAttribute('src', topArtistsResponse.items[0].images[1].url);
-    const subtitles = await screen.findAllByTestId('subtitle');
-    expect(subtitles[0]).toHaveTextContent(/genres: rock/i);
 
-    // track card
-    const trackTitle = await screen.findByRole('heading', { level: 3, name: /track 1/i });
-    expect(trackTitle).toBeInTheDocument();
+    // track card assertions
+    const trackCardTitle = await screen.findByRole('heading', { level: 3, name: /track 1/i });
+    expect(trackCardTitle).toBeInTheDocument();
     expect(screen.getByAltText('Track 1')).toHaveAttribute('src', topTracksResponse.items[0].album.images[1].url);
-    expect(subtitles[1]).toHaveTextContent(/artistes: artist 1/i);
+
+    // subtitles (genre + artist names)
+    const subtitles = screen.getAllByTestId('subtitle');
+    expect(subtitles).toHaveLength(2);
+    expect(subtitles[0]).toHaveTextContent(/^rock$/i);
+    expect(subtitles[1]).toHaveTextContent(/^artist 1$/i);
+
+    // verify external links present
+    const links = screen.getAllByTestId('link');
+    expect(links[0]).toHaveAttribute('href', topArtistsResponse.items[0].external_urls.spotify);
+    expect(links[1]).toHaveAttribute('href', topTracksResponse.items[0].external_urls.spotify);
   });
 
-  test('displays artist fetch error', async () => {
+  test('shows artist error and still attempts track fetch', async () => {
     jest.spyOn(spotifyMe, 'fetchUserTopArtists').mockResolvedValue({ data: null, error: 'Artist error' });
-    render(
-      <MemoryRouter initialEntries={['/dashboard']}>
-        <Routes>
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
+    renderDashboard();
     const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent('Artist error');
+    await waitFor(() => expect(spotifyMe.fetchUserTopTracks).toHaveBeenCalledTimes(1));
   });
 
-  test('displays track fetch error', async () => {
+  test('shows track error independently of artist', async () => {
     jest.spyOn(spotifyMe, 'fetchUserTopTracks').mockResolvedValue({ data: null, error: 'Track error' });
+    renderDashboard();
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Track error');
+    await waitFor(() => expect(spotifyMe.fetchUserTopArtists).toHaveBeenCalledTimes(1));
+  });
+
+  test('does not fetch when checking is true (line 20 guard)', async () => {
+    jest.spyOn(spotifyMe, 'fetchUserTopArtists').mockClear();
+    jest.spyOn(spotifyMe, 'fetchUserTopTracks').mockClear();
+    // Temporarily mock useRequireToken
+    jest.mock('../../hooks/useRequireToken.js', () => ({ useRequireToken: () => ({ token: 'any', checking: true }) }));
+    const { default: DashboardPageMock } = await import('./DashboardPage.jsx');
     render(
       <MemoryRouter initialEntries={['/dashboard']}>
         <Routes>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DashboardPageMock />} />
         </Routes>
       </MemoryRouter>
     );
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('Track error');
+    await waitFor(() => {
+      expect(spotifyMe.fetchUserTopArtists).not.toHaveBeenCalled();
+      expect(spotifyMe.fetchUserTopTracks).not.toHaveBeenCalled();
+    });
+  });
+
+  test('shows genre fallback dash when no genres (covers line 47 subtitle build)', async () => {
+    jest.spyOn(spotifyMe, 'fetchUserTopArtists').mockResolvedValue({ data: { items: [{ id: 'a2', name: 'No Genre Artist', images: [{}, { url: 'https://via.placeholder.com/160' }], genres: [], external_urls: { spotify: 'https://spotify.com/a2' } }] }, error: null });
+    renderDashboard();
+    await waitForData();
+    const subtitles = screen.getAllByTestId('subtitle');
+    expect(subtitles[0]).toHaveTextContent(/^—$/); // fallback dash
+  });
+
+  test('shows artist names fallback dash when no artists (covers line 48 track subtitle build)', async () => {
+    jest.spyOn(spotifyMe, 'fetchUserTopTracks').mockResolvedValue({ data: { items: [{ id: 't2', name: 'No Artist Track', artists: [], album: { name: 'Alb', images: [{}, { url: 'https://via.placeholder.com/160' }] }, external_urls: { spotify: 'https://spotify.com/t2' } }] }, error: null });
+    renderDashboard();
+    await waitForData();
+    const subtitles = screen.getAllByTestId('subtitle');
+    expect(subtitles[1]).toHaveTextContent(/^—$/); // fallback dash
   });
 });

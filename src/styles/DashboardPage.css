@@ -1,54 +1,71 @@
-.top-artist {
+/* Dashboard gradient background and layout */
+.dashboard-page {
+  min-height: calc(100vh - 64px); /* assume header/nav height */
+  padding: 48px 24px 96px;
+  background: linear-gradient(135deg,#16b358 0%, #0f4428 45%, #0f2e22 100%);
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fafafa;
-  max-width: 320px;
+  align-items: center;
+  box-sizing: border-box;
 }
-.top-artist-image {
-  width: 160px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 8px;
+.dashboard-page h1 {
+  font-size: 3rem;
+  margin: 0 0 8px;
+  color: #222;
+  font-weight: 700;
+  text-align: center;
 }
-.top-artist-name {
-  margin: 0;
-  font-size: 1.4rem;
+.dashboard-subtitle {
+  margin: 0 0 40px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2d5e48;
+  text-align: center;
 }
-.top-artist-genres {
-  margin: 0;
-  font-size: 0.9rem;
+.dashboard-cards {
+  width: 100%;
+  max-width: 1180px;
+  display: grid;
+  gap: 48px;
+  grid-template-columns: repeat(auto-fit,minmax(320px,1fr));
+  justify-content: center;
+}
+/* Ensure SimpleCard adapts inside dashboard */
+.simple-card {
+  border: 1px solid #e1e1e1;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04),0 4px 12px rgba(0,0,0,0.08);
+  transition: box-shadow .2s ease, transform .2s ease;
+  width: 100%;
+  max-width: 360px;
+  min-height: 400px;
+}
+.simple-card:hover {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.08),0 6px 16px rgba(0,0,0,0.18);
+  transform: translateY(-4px);
+}
+.simple-card__image {
+  width: 140px;
+  height: 140px;
+  margin-bottom: 12px;
+}
+.simple-card__title {
+  font-size: 1.35rem;
+}
+.simple-card__subtitle {
+  font-size: .85rem;
+  font-weight: 500;
   color: #444;
+  margin-top: 12px;
 }
-.top-track {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f5f5f5;
-  max-width: 320px;
-  margin-top: 24px;
+.simple-card__button {
+  margin-top: auto;
+  padding: 10px 20px;
+  background: #14a84b;
+  border-radius: 6px;
+  font-size: .85rem;
 }
-.top-track-image {
-  width: 160px;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-.top-track-name {
-  margin: 0;
-  font-size: 1.2rem;
-}
-.top-track-artists,
-.top-track-album {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #333;
+@media (max-width: 760px) {
+  .dashboard-page { padding: 32px 16px 72px; }
+  .dashboard-page h1 { font-size: 2.25rem; }
+  .dashboard-cards { gap: 32px; }
 }
