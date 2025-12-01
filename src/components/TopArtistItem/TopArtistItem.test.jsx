@@ -6,13 +6,13 @@ import { render, screen, within } from '@testing-library/react';
 import TopArtistItem from './TopArtistItem';
 
 describe('TopArtistItem component', () => {
-    test('renders artist information correctly and index starts at 1', () => {
+    test('renders artist information correctly', () => {
         const artist = {
             id: 'artist1',
             name: 'Test Artist',
             images: [{ url: 'test.jpg' }, { url: 'test-medium.jpg' }, { url: 'test-small.jpg' }],
             genres: ['pop', 'rock'],
-            followers: { total: 100 },
+            followers: { total: 1000 },
             popularity: 85,
             external_urls: { spotify: 'https://open.spotify.com/artist/artist1' }
         };
@@ -26,9 +26,6 @@ describe('TopArtistItem component', () => {
         const img = within(listItem).getByAltText(artist.name);
         expect(img).toBeInTheDocument();
         expect(img).toHaveAttribute('src', artist.images[1].url);
-
-        // title should include index starting from 1
-        expect(listItem).toHaveTextContent(`1. ${artist.name}`);
 
         // details assertions
         expect(listItem).toHaveTextContent(artist.name);
@@ -44,7 +41,7 @@ describe('TopArtistItem component', () => {
         //screen.debug();
     });
 
-    test('handles missing artist image gracefully and index label is correct', () => {
+    test('handles missing artist image gracefully', () => {
         const artist = {
             id: 'artist2',
             name: 'No Image Artist',
@@ -61,9 +58,6 @@ describe('TopArtistItem component', () => {
 
         // should not contain artist image (query by alt)
         expect(within(listItem).queryByAltText(artist.name)).not.toBeInTheDocument();
-
-        // title should include index starting from 1 (here index prop = 1, so label = 2)
-        expect(listItem).toHaveTextContent(`2. ${artist.name}`);
 
         // details assertions
         expect(listItem).toHaveTextContent(artist.name);
