@@ -23,7 +23,6 @@ export default function PlaylistsPage() {
 
   // state for playlists data
   const [playlists, setPlaylists] = useState([]);
-  const [total, setTotal] = useState(0);
 
   // state for loading and error
   const [loading, setLoading] = useState(true);
@@ -47,7 +46,6 @@ export default function PlaylistsPage() {
           }
         }
         setPlaylists(res.data.items);
-        setTotal(typeof res.data.total === 'number' ? res.data.total : res.data.items.length);
       })
       .catch(err => { setError(err.message); })
       .finally(() => { setLoading(false); });
@@ -56,10 +54,7 @@ export default function PlaylistsPage() {
   return (
     <section className="playlists-container page-container" aria-labelledby="playlists-title">
       <h1 id="playlists-title" className="playlists-title page-title">Your Playlists</h1>
-      {/* Display the number of playlists displayed and the total available */}
-      {!loading && !error && (
-        <h2 className="playlists-count">{`${playlists.length} of ${total} Playlists`}</h2>
-      )}
+      <h2 className="playlists-count">{limit} Playlists</h2>
       {loading && <output className="playlists-loading" data-testid="loading-indicator">Loading playlists…</output>}
       {error && !loading && <div className="playlists-error" role="alert">{error}</div>}
       {!loading && !error && (
